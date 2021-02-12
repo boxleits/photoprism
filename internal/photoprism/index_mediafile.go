@@ -3,6 +3,7 @@ package photoprism
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -589,6 +590,42 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 
 		event.EntitiesCreated("photos", []entity.Photo{photo})
 	}
+
+	//TODO
+	oldFolderPhotoLabels := []entity.PhotoLabel{}
+	if q := entity.UnscopedDb().Where("photo_id = ? and label_src = 'folder'", photo.Details.PhotoID).Find(&oldFolderPhotoLabels); q.Error != nil {
+		// seems like nothing to do, as array is initial
+	}
+	for _, oldFolderPhotolabel := range oldFolderPhotoLabels {
+
+		if entity.UnscopedDb().Delete(&oldFolderPhotolabel).Error != nil {
+			continue
+		}
+
+		oldLabel := entity.Label{}
+		if entity.UnscopedDb().Where("id = ?", oldFolderPhotolabel.LabelID).First(&oldLabel).Error != nil {
+			continue
+		}
+
+		folderPhotoLabelsLeft := []entity.PhotoLabel{}
+		if q := entity.UnscopedDb().Where("label_id = ?", oldLabel.ID).Find(&folderPhotoLabelsLeft); q.Error == nil {
+			if len(folderPhotoLabelsLeft) == 0 {
+				entity.UnscopedDb().Delete(&oldLabel)
+			}
+		}
+
+		photo.RemoveKeyword(oldLabel.LabelName)
+	}
+
+	for _, pathPart := range strings.Split(photo.PhotoPath, string(os.PathSeparator)) {
+		labels = labels.AppendLabel(classify.Label{
+			Name:        "[folder] " + pathPart,
+			Source:      "folder",
+			Uncertainty: 0,
+			Priority:    0,
+		})
+	}
+	//TODO
 
 	photo.AddLabels(labels)
 
