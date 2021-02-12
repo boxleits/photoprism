@@ -199,6 +199,9 @@ func (c *Convert) JpegConvertCommand(f *MediaFile, jpegName string, xmpName stri
 				args = append(args, jpegName)
 			}
 
+			//TODO
+			args = append(args, "--core", "--conf", "host_memory_limit=500")
+
 			result = exec.Command(c.conf.DarktableBin(), args...)
 		} else if c.conf.RawtherapeeEnabled() {
 			jpegQuality := fmt.Sprintf("-j%d", c.conf.JpegQuality())
