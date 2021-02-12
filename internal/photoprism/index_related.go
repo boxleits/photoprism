@@ -35,7 +35,10 @@ func IndexMain(related *RelatedFiles, ind *Index, opt IndexOptions) (result Inde
 		}
 	}
 
-	if opt.Convert && f.IsMedia() && !f.HasJpeg() {
+	//TODO: recreate jpeg, when main file or xmp file is newer than jpeg modtime
+	//TODO: should ideally be:
+	//if opt.Convert && f.IsMedia() && ( !f.HasJpeg() || f.JpegOutdated() ) {
+	if opt.Convert && f.IsMedia() { //&& !f.HasJpeg() {
 		if jpegFile, err := ind.convert.ToJpeg(f); err != nil {
 			result.Err = fmt.Errorf("index: failed converting %s to jpeg (%s)", txt.Quote(f.BaseName()), err.Error())
 			result.Status = IndexFailed
@@ -51,6 +54,15 @@ func IndexMain(related *RelatedFiles, ind *Index, opt IndexOptions) (result Inde
 				return result
 			}
 
+			//TODO: overwrite
+			i := 0
+			for i < len(related.Files) {
+				if related.Files[i].fileName == jpegFile.fileName {
+					related.Files[i] = related.Files[len(related.Files)-1]
+					related.Files = related.Files[:len(related.Files)-1]
+				}
+				i++
+			}
 			related.Files = append(related.Files, jpegFile)
 		}
 	}

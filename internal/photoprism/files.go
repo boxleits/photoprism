@@ -109,7 +109,8 @@ func (m *Files) Indexed(fileName, fileRoot string, modTime time.Time, rescan boo
 
 	mod, ok := m.files[key]
 
-	if ok && mod == timestamp {
+	if ok && mod >= timestamp {
+	//if ok && mod == timestamp {
 		return true
 	} else {
 		return false

@@ -167,9 +167,10 @@ func (ind *Index) Start(opt IndexOptions) fs.Done {
 				return nil
 			}
 
-			if ind.files.Indexed(relName, entity.RootOriginals, mf.modTime, opt.Rescan) {
-				return nil
-			}
+			//TODO
+			// if ind.files.Indexed(relName, entity.RootOriginals, mf.modTime, opt.Rescan) {
+			// 	return nil
+			// }
 
 			related, err := mf.RelatedFiles(ind.conf.Settings().StackSequences())
 

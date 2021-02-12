@@ -237,11 +237,12 @@ func (c *Convert) ToJpeg(f *MediaFile) (*MediaFile, error) {
 
 	jpegName := fs.FormatJpeg.FindFirst(f.FileName(), []string{c.conf.SidecarPath(), fs.HiddenPath}, c.conf.OriginalsPath(), false)
 
-	mediaFile, err := NewMediaFile(jpegName)
+	//TODO: omit this check
+	// mediaFile, err := NewMediaFile(jpegName)
 
-	if err == nil && mediaFile.IsJpeg() {
-		return mediaFile, nil
-	}
+	// if err == nil && mediaFile.IsJpeg() {
+	// 	return mediaFile, nil
+	// }
 
 	if !c.conf.SidecarWritable() {
 		return nil, fmt.Errorf("convert: disabled in read only mode (%s)", f.RelName(c.conf.OriginalsPath()))
@@ -262,7 +263,7 @@ func (c *Convert) ToJpeg(f *MediaFile) (*MediaFile, error) {
 	})
 
 	if f.IsImageOther() {
-		_, err = thumb.Jpeg(f.FileName(), jpegName, f.Orientation())
+		_, err := thumb.Jpeg(f.FileName(), jpegName, f.Orientation())
 
 		if err != nil {
 			return nil, err
@@ -284,8 +285,10 @@ func (c *Convert) ToJpeg(f *MediaFile) (*MediaFile, error) {
 		defer c.cmdMutex.Unlock()
 	}
 
+	//TODO: omit this check
 	if fs.FileExists(jpegName) {
-		return NewMediaFile(jpegName)
+		// return NewMediaFile(jpegName)
+		os.Remove(jpegName)
 	}
 
 	// Fetch command output.
