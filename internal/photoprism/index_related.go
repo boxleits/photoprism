@@ -78,6 +78,13 @@ func IndexMain(related *RelatedFiles, ind *Index, opt IndexOptions) (result Inde
 
 	log.Infof("index: %s main %s file %s", result, f.FileType(), txt.Quote(f.RelName(ind.originalsPath())))
 
+	//TODO
+	if f.IsVideo() {
+		if _, err := ind.convert.ToAvc(f, ""); err != nil {
+			log.Errorf("video: failed transcoding %s", txt.Quote(f.fileName))
+		}
+	}
+
 	return result
 }
 
